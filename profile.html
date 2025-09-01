@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Study Hub - Profile & Settings</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="js/connections.js"></script>
+    <script src="js/study-rooms.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 2rem;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      /* Header */
+      .profile-header {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+      }
+
+      .back-button {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: background-color 0.3s;
+      }
+
+      .back-button:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 3rem;
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.3s;
+      }
+
+      .profile-avatar:hover {
+        transform: scale(1.05);
+      }
+
+      .avatar-upload {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background: #3498db;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+
+      .profile-name {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .profile-email {
+        opacity: 0.9;
+        font-size: 1.1rem;
+      }
+
+      /* Navigation Tabs */
+      .profile-nav {
+        display: flex;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        overflow-x: auto;
+      }
+
+      .nav-tab {
+        padding: 1rem 2rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #666;
+        transition: all 0.3s;
+        white-space: nowrap;
+      }
+
+      .nav-tab.active {
+        color: #3498db;
+        border-bottom: 3px solid #3498db;
+        background: white;
+      }
+
+      .nav-tab:hover {
+        background: #f0f0f0;
+      }
+
+      /* Content Sections */
+      .profile-content {
+        padding: 2rem;
+      }
+
+      .content-section {
+        display: none;
+      }
+
+      .content-section.active {
+        display: block;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        color: #333;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #333;
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+        padding: 0.8rem;
+        border: 2px solid #e1e1e1;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: #3498db;
+      }
+
+      .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      .form-actions {
+        margin-top: 2rem;
+        display: flex;
+        gap: 1rem;
+      }
+
+      .btn {
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .btn-primary {
+        background: #3498db;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+      }
+
+      .btn-secondary {
+        background: #95a5a6;
+        color: white;
+      }
+
+      .btn-secondary:hover {
+        background: #7f8c8d;
+      }
+
+      /* Stats Cards */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .stat-card {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 12px;
+        text-align: center;
+        border: 2px solid #e9ecef;
+        transition: transform 0.3s;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-2px);
+      }
+
+      .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #3498db;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      /* Study History */
+      .study-history {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .history-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .history-info {
+        flex: 1;
+      }
+
+      .history-room {
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 0.3rem;
+      }
+
+      .history-date {
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      .history-duration {
+        background: #e8f4fd;
+        color: #0066cc;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+
+      /* Settings Sections */
+      .settings-section {
+        margin-bottom: 2rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+      }
+
+      .settings-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #333;
+      }
+
+      .setting-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .setting-item:last-child {
+        border-bottom: none;
+      }
+
+      .setting-info {
+        flex: 1;
+      }
+
+      .setting-name {
+        font-weight: 500;
+        margin-bottom: 0.3rem;
+      }
+
+      .setting-description {
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      .toggle-switch {
+        position: relative;
+        width: 50px;
+        height: 24px;
+        background: #ccc;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .toggle-switch.active {
+        background: #3498db;
+      }
+
+      .toggle-switch::after {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 20px;
+        height: 20px;
+        background: white;
+        border-radius: 50%;
+        transition: transform 0.3s;
+      }
+
+      .toggle-switch.active::after {
+        transform: translateX(26px);
+      }
+
+      /* Achievement Badges */
+      .achievements-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+
+      .achievement-badge {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: transform 0.3s;
+      }
+
+      .achievement-badge.earned {
+        border-color: #27ae60;
+        background: #d4edda;
+      }
+
+      .achievement-badge:hover {
+        transform: translateY(-2px);
+      }
+
+      .achievement-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+
+      .achievement-name {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .achievement-description {
+        font-size: 0.9rem;
+        color: #666;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        body {
+          padding: 1rem;
+        }
+
+        .profile-nav {
+          flex-wrap: nowrap;
+          justify-content: flex-start;
+        }
+
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+          flex-direction: column;
+        }
+
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      .hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <div
+          class="header-nav-buttons"
+          style="
+            justify-content: space-between;
+            width: 100%;
+            align-items: center;
+          "
+        >
+          <button class="nav-btn" data-navigate="rooms" title="Study Rooms">
+            <i class="fas fa-home"></i> Study Rooms
+          </button>
+        </div>
+        <div
+          class="profile-avatar"
+          onclick="document.getElementById('avatarInput').click()"
+        >
+          👨‍🎓
+          <div class="avatar-upload">📷</div>
+        </div>
+        <input
+          type="file"
+          id="avatarInput"
+          accept="image/*"
+          style="display: none"
+        />
+        <h1 class="profile-name" id="profileUserName">Kasun Gamage</h1>
+        <p class="profile-email" id="profileUserEmail">
+          kasun_gamage@gmail.com
+        </p>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="profile-nav">
+        <button class="nav-tab active" data-section="overview">
+          📊 Overview
+        </button>
+        <button class="nav-tab" data-section="profile">👤 Profile</button>
+        <button class="nav-tab" data-section="study-stats">
+          📈 Study Stats
+        </button>
+        <button class="nav-tab" data-section="achievements">
+          🏆 Achievements
+        </button>
+        <button class="nav-tab" data-section="settings">⚙️ Settings</button>
+        <button class="nav-tab" data-section="privacy">🔒 Privacy</button>
+      </div>
+
+      <!-- Content Sections -->
+      <div class="profile-content">
+        <!-- Overview Section -->
+        <div id="overview" class="content-section active">
+          <h2 class="section-title">📊 Account Overview</h2>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-number">47</div>
+              <div class="stat-label">Study Sessions</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">128h</div>
+              <div class="stat-label">Total Study Time</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">23</div>
+              <div class="stat-label">Questions Asked</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">89</div>
+              <div class="stat-label">Questions Answered</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">12</div>
+              <div class="stat-label">Study Rooms Joined</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">4.8</div>
+              <div class="stat-label">Average Rating</div>
+            </div>
+          </div>
+
+          <div class="study-history">
+            <h3 style="margin-bottom: 1rem; color: #333">
+              📚 Recent Study Sessions
+            </h3>
+            <div class="history-item">
+              <div class="history-info">
+                <div class="history-room">📐 Advanced Calculus</div>
+                <div class="history-date">Today, 2:30 PM</div>
+              </div>
+              <div class="history-duration">2h 15m</div>
+            </div>
+            <div class="history-item">
+              <div class="history-info">
+                <div class="history-room">🔬 Organic Chemistry</div>
+                <div class="history-date">Yesterday, 7:45 PM</div>
+              </div>
+              <div class="history-duration">1h 45m</div>
+            </div>
+            <div class="history-item">
+              <div class="history-info">
+                <div class="history-room">💻 JavaScript Fundamentals</div>
+                <div class="history-date">Jan 12, 2025</div>
+              </div>
+              <div class="history-duration">3h 20m</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div id="profile" class="content-section">
+          <h2 class="section-title">👤 Edit Profile</h2>
+
+          <form>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" value="Kasun" required />
+              </div>
+              <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" value="Gamage" required />
+              </div>
+              <div class="form-group">
+                <label for="email">Email Address</label>
+                <input
+                  type="email"
+                  id="email"
+                  value="kasun_gamage@gmail.com"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" value="+94 (77) 123-4567" />
+              </div>
+              <div class="form-group">
+                <label for="institution">Educational Institution</label>
+                <input
+                  type="text"
+                  id="institution"
+                  value="University of Ruhuna"
+                />
+              </div>
+              <div class="form-group">
+                <label for="grade">Grade/Year</label>
+                <select id="grade">
+                  <option>Select Grade/Year</option>
+                  <option>High School - Grade 9</option>
+                  <option>High School - Grade 10</option>
+                  <option>High School - Grade 11</option>
+                  <option>High School - Grade 12</option>
+                  <option>University - Year 1</option>
+                  <option selected>University - Year 2</option>
+                  <option>University - Year 3</option>
+                  <option>University - Year 4</option>
+                  <option>Graduate Student</option>
+                  <option>Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="subjects">Favorite Subjects</label>
+              <textarea
+                id="subjects"
+                placeholder="List your favorite subjects or areas of study..."
+              >
+Mathematics, Computer Science, Physics</textarea
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="bio">Bio</label>
+              <textarea id="bio" placeholder="Tell us a bit about yourself...">
+Passionate about mathematics and programming. Love helping fellow students and learning new concepts through collaborative study sessions.</textarea
+              >
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">
+                Save Changes
+              </button>
+              <button type="button" class="btn btn-secondary">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Study Stats Section -->
+        <div id="study-stats" class="content-section">
+          <h2 class="section-title">📈 Detailed Study Statistics</h2>
+
+          <div class="settings-section">
+            <h3 class="settings-title">📊 This Week's Progress</h3>
+            <div
+              style="
+                background: white;
+                padding: 1.5rem;
+                border-radius: 8px;
+                margin-bottom: 1rem;
+              "
+            >
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: repeat(7, 1fr);
+                  gap: 0.5rem;
+                  margin-bottom: 1rem;
+                "
+              >
+                <div style="text-align: center; font-size: 0.8rem; color: #666">
+                  Mon
+                </div>
+                <div style="text-align: center; font-size: 0.8rem; color: #666">
+                  Tue
+                </div>
+                <div style="text-align: center; font-size: 0.8rem; color: #666">
+                  Wed
+                </div>
+                <div style="text-align: center; font-size: 0.8rem; color: #666">
+                  Thu
+                </div>
+                <div style="text-align: center; font-size: 0.8rem; color: #666">
+                  Fri
+                </div>
+                <div style="text-align: center; font-size: 0.8rem; color: #666">
+                  Sat
+                </div>
+                <div style="text-align: center; font-size: 0.8rem; color: #666">
+                  Sun
+                </div>
+              </div>
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: repeat(7, 1fr);
+                  gap: 0.5rem;
+                "
+              >
+                <div
+                  style="
+                    height: 40px;
+                    background: #3498db;
+                    border-radius: 4px;
+                    position: relative;
+                  "
+                >
+                  <span
+                    style="
+                      position: absolute;
+                      top: -20px;
+                      left: 50%;
+                      transform: translateX(-50%);
+                      font-size: 0.8rem;
+                      color: #333;
+                    "
+                    >2h</span
+                  >
+                </div>
+                <div
+                  style="
+                    height: 60px;
+                    background: #27ae60;
+                    border-radius: 4px;
+                    position: relative;
+                  "
+                >
+                  <span
+                    style="
+                      position: absolute;
+                      top: -20px;
+                      left: 50%;
+                      transform: translateX(-50%);
+                      font-size: 0.8rem;
+                      color: #333;
+                    "
+                    >3h</span
+                  >
+                </div>
+                <div
+                  style="
+                    height: 30px;
+                    background: #f39c12;
+                    border-radius: 4px;
+                    position: relative;
+                  "
+                >
+                  <span
+                    style="
+                      position: absolute;
+                      top: -20px;
+                      left: 50%;
+                      transform: translateX(-50%);
+                      font-size: 0.8rem;
+                      color: #333;
+                    "
+                    >1.5h</span
+                  >
+                </div>
+                <div
+                  style="
+                    height: 50px;
+                    background: #9b59b6;
+                    border-radius: 4px;
+                    position: relative;
+                  "
+                >
+                  <span
+                    style="
+                      position: absolute;
+                      top: -20px;
+                      left: 50%;
+                      transform: translateX(-50%);
+                      font-size: 0.8rem;
+                      color: #333;
+                    "
+                    >2.5h</span
+                  >
+                </div>
+                <div
+                  style="
+                    height: 20px;
+                    background: #e74c3c;
+                    border-radius: 4px;
+                    position: relative;
+                  "
+                >
+                  <span
+                    style="
+                      position: absolute;
+                      top: -20px;
+                      left: 50%;
+                      transform: translateX(-50%);
+                      font-size: 0.8rem;
+                      color: #333;
+                    "
+                    >1h</span
+                  >
+                </div>
+                <div
+                  style="
+                    height: 80px;
+                    background: #1abc9c;
+                    border-radius: 4px;
+                    position: relative;
+                  "
+                >
+                  <span
+                    style="
+                      position: absolute;
+                      top: -20px;
+                      left: 50%;
+                      transform: translateX(-50%);
+                      font-size: 0.8rem;
+                      color: #333;
+                    "
+                    >4h</span
+                  >
+                </div>
+                <div
+                  style="
+                    height: 35px;
+                    background: #34495e;
+                    border-radius: 4px;
+                    position: relative;
+                  "
+                >
+                  <span
+                    style="
+                      position: absolute;
+                      top: -20px;
+                      left: 50%;
+                      transform: translateX(-50%);
+                      font-size: 0.8rem;
+                      color: #333;
+                    "
+                    >1.8h</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3 class="settings-title">🎯 Subject Breakdown</h3>
+            <div style="display: grid; gap: 1rem">
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  background: white;
+                  padding: 1rem;
+                  border-radius: 8px;
+                "
+              >
+                <span>📐 Mathematics</span>
+                <div style="flex: 1; margin: 0 1rem">
+                  <div
+                    style="background: #ecf0f1; height: 8px; border-radius: 4px"
+                  >
+                    <div
+                      style="
+                        background: #3498db;
+                        height: 100%;
+                        width: 65%;
+                        border-radius: 4px;
+                      "
+                    ></div>
+                  </div>
+                </div>
+                <span style="font-weight: 500">32h (65%)</span>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  background: white;
+                  padding: 1rem;
+                  border-radius: 8px;
+                "
+              >
+                <span>🔬 Science</span>
+                <div style="flex: 1; margin: 0 1rem">
+                  <div
+                    style="background: #ecf0f1; height: 8px; border-radius: 4px"
+                  >
+                    <div
+                      style="
+                        background: #27ae60;
+                        height: 100%;
+                        width: 45%;
+                        border-radius: 4px;
+                      "
+                    ></div>
+                  </div>
+                </div>
+                <span style="font-weight: 500">23h (45%)</span>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  background: white;
+                  padding: 1rem;
+                  border-radius: 8px;
+                "
+              >
+                <span>💻 Programming</span>
+                <div style="flex: 1; margin: 0 1rem">
+                  <div
+                    style="background: #ecf0f1; height: 8px; border-radius: 4px"
+                  >
+                    <div
+                      style="
+                        background: #9b59b6;
+                        height: 100%;
+                        width: 80%;
+                        border-radius: 4px;
+                      "
+                    ></div>
+                  </div>
+                </div>
+                <span style="font-weight: 500">41h (80%)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Achievements Section -->
+        <div id="achievements" class="content-section">
+          <h2 class="section-title">🏆 Your Achievements</h2>
+
+          <div class="achievements-grid">
+            <div class="achievement-badge earned">
+              <div class="achievement-icon">🎯</div>
+              <div class="achievement-name">First Steps</div>
+              <div class="achievement-description">
+                Complete your first study session
+              </div>
+            </div>
+            <div class="achievement-badge earned">
+              <div class="achievement-icon">🔥</div>
+              <div class="achievement-name">Week Warrior</div>
+              <div class="achievement-description">
+                Study for 7 consecutive days
+              </div>
+            </div>
+            <div class="achievement-badge earned">
+              <div class="achievement-icon">🤝</div>
+              <div class="achievement-name">Helper</div>
+              <div class="achievement-description">
+                Answer 10 questions from peers
+              </div>
+            </div>
+            <div class="achievement-badge">
+              <div class="achievement-icon">⏰</div>
+              <div class="achievement-name">Time Master</div>
+              <div class="achievement-description">
+                Complete 100 hours of study time
+              </div>
+            </div>
+            <div class="achievement-badge">
+              <div class="achievement-icon">📚</div>
+              <div class="achievement-name">Bookworm</div>
+              <div class="achievement-description">
+                Join 20 different study rooms
+              </div>
+            </div>
+            <div class="achievement-badge">
+              <div class="achievement-icon">👑</div>
+              <div class="achievement-name">Study King</div>
+              <div class="achievement-description">
+                Maintain top 10% ranking for a month
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="settings" class="content-section">
+          <h2 class="section-title">⚙️ Account Settings</h2>
+
+          <div class="settings-section">
+            <h3 class="settings-title">🔔 Notifications</h3>
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-name">Email Notifications</div>
+                <div class="setting-description">
+                  Receive study reminders and updates via email
+                </div>
+              </div>
+              <div
+                class="toggle-switch active"
+                onclick="toggleSwitch(this)"
+              ></div>
+            </div>
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-name">Push Notifications</div>
+                <div class="setting-description">
+                  Get real-time notifications in your browser
+                </div>
+              </div>
+              <div
+                class="toggle-switch active"
+                onclick="toggleSwitch(this)"
+              ></div>
+            </div>
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-name">Study Reminders</div>
+                <div class="setting-description">
+                  Daily reminders to maintain your study streak
+                </div>
+              </div>
+              <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3 class="settings-title">🎨 Appearance</h3>
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-name">Dark Mode</div>
+                <div class="setting-description">
+                  Use dark theme for comfortable night studying
+                </div>
+              </div>
+              <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
+            </div>
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-name">Compact Mode</div>
+                <div class="setting-description">
+                  Show more content in less space
+                </div>
+              </div>
+              <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3 class="settings-title">🤖 AI Assistant</h3>
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-name">Auto-suggest Questions</div>
+                <div class="setting-description">
+                  AI suggests relevant questions while studying
+                </div>
+              </div>
+              <div
+                class="toggle-switch active"
+                onclick="toggleSwitch(this)"
+              ></div>
+            </div>
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-name">Detailed Explanations</div>
+                <div class="setting-description">
+                  Get comprehensive explanations from AI
+                </div>
+              </div>
+              <div
+                class="toggle-switch active"
+                onclick="toggleSwitch(this)"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Privacy Section -->
+        <div id="privacy" class="content-section">
+          <h2 class="section-title">🔒 Privacy & Security</h2>
+
+          <div class="settings-section">
+            <h3 class="settings-title">👁️ Visibility</h3>
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-name">Public Profile</div>
+                <div class="setting-description">
+                  Allow others to view your study statistics
+                </div>
+              </div>
+              <div
+                class="toggle-switch active"
+                onclick="toggleSwitch(this)"
+              ></div>
+            </div>
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-name">Online Status</div>
+                <div class="setting-description">
+                  Show when you're active in study rooms
+                </div>
+              </div>
+              <div
+                class="toggle-switch active"
+                onclick="toggleSwitch(this)"
+              ></div>
+              <div class="setting-item">
+                <div class="setting-info">
+                  <div class="setting-name">Password Change</div>
+                  <div class="setting-description">
+                    Change your Account Password
+                  </div>
+                </div>
+                <button
+                  class="btn btn-primary"
+                  onclick="alert('Password change feature coming soon!')"
+                >
+                  Change Password
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      // Toggle Navigation Tabs
+      const navTabs = document.querySelectorAll(".nav-tab");
+      const contentSections = document.querySelectorAll(".content-section");
+      navTabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          navTabs.forEach((t) => t.classList.remove("active"));
+          contentSections.forEach((section) =>
+            section.classList.remove("active")
+          );
+          tab.classList.add("active");
+          const sectionId = tab.getAttribute("data-section");
+          document.getElementById(sectionId).classList.add("active");
+        });
+      });
+      // Toggle Switch Functionality
+      function toggleSwitch(element) {
+        element.classList.toggle("active");
+      }
+    </script>
+  </body>
+</html>

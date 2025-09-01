@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Study Hub - AI-Powered Study Groups</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <div class="login-header">
+          <i class="fas fa-graduation-cap"></i>
+          <h2>Welcome to Study Hub</h2>
+          <p>Join AI-powered study groups and collaborate with peers</p>
+        </div>
+        <form id="loginForm">
+          <div class="input-group">
+            <i class="fas fa-user"></i>
+            <input
+              type="text"
+              id="usernameInput"
+              placeholder="Enter your username"
+              required
+            />
+          </div>
+          <div class="input-group">
+            <i class="fas fa-book"></i>
+            <select id="roomSelect" required>
+              <option value="">Select a study room</option>
+              <option value="Math">📐 Math</option>
+              <option value="Science">🔬 Science</option>
+              <option value="English">📚 English</option>
+              <option value="History">🏛️ History</option>
+              <option value="Programming">💻 Programming</option>
+            </select>
+          </div>
+          <button type="submit" class="join-btn">
+            <i class="fas fa-sign-in-alt"></i>
+            Join Study Room
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Main Chat Interface -->
+    <div id="chatContainer" class="chat-container">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <div class="navigation-menu">
+            <button class="nav-link" id="profileBtn">
+              <i class="fas fa-user"></i> Profile
+            </button>
+            <button class="nav-link" id="roomsBtn">
+              <i class="fas fa-door-open"></i> Study Rooms
+            </button>
+            <button
+              class="nav-link admin-only"
+              id="adminBtn"
+              style="display: none"
+            >
+              <i class="fas fa-cog"></i> Admin
+            </button>
+          </div>
+          <h3><i class="fas fa-graduation-cap"></i> Study Hub</h3>
+          <div class="user-info">
+            <i class="fas fa-user-circle"></i>
+            <span id="currentUser"></span>
+          </div>
+        </div>
+
+        <div class="rooms-section">
+          <h4><i class="fas fa-door-open"></i> Study Rooms</h4>
+          <div class="rooms-list" id="roomsList">
+            <!-- Rooms will be populated by JavaScript -->
+          </div>
+        </div>
+
+        <div class="online-users">
+          <h4><i class="fas fa-users"></i> Online Users</h4>
+          <div id="usersList"></div>
+        </div>
+
+        <div class="ai-help">
+          <div class="ai-tip">
+            <i class="fas fa-robot"></i>
+            <div>
+              <strong>AI Assistant</strong>
+              <p>Type <code>/ai [question]</code> for help</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Area -->
+      <div class="chat-area">
+        <div class="chat-header">
+          <div class="room-info">
+            <h2 id="currentRoom"></h2>
+            <span id="roomDescription"></span>
+          </div>
+          <div class="room-actions">
+            <button id="toggleSidebar" class="action-btn">
+              <i class="fas fa-bars"></i>
+            </button>
+            <button id="leaveRoomBtn" class="action-btn">
+              <i class="fas fa-sign-out-alt"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="messagesContainer" class="messages-container">
+          <div class="welcome-message">
+            <i class="fas fa-comments"></i>
+            <h3>Welcome to the study room!</h3>
+            <p>
+              Start collaborating with your peers. Use
+              <strong>/ai [question]</strong> to get help from our AI assistant.
+            </p>
+          </div>
+        </div>
+
+        <div id="typingIndicator" class="typing-indicator">
+          <div class="typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <span id="typingText"></span>
+        </div>
+
+        <div class="message-input-container">
+          <div class="input-wrapper">
+            <button id="fileUploadBtn" class="file-btn" title="Upload File">
+              <i class="fas fa-paperclip"></i>
+            </button>
+            <input
+              type="file"
+              id="fileInput"
+              accept="image/*,application/pdf"
+              style="display: none"
+            />
+
+            <input
+              type="text"
+              id="messageInput"
+              placeholder="Type your message... (Use /ai for AI help)"
+              maxlength="500"
+            />
+
+            <button id="sendBtn" class="send-btn" title="Send Message">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+          <div class="input-hint">
+            Press Enter to send • Shift+Enter for new line • /ai [question] for
+            AI help
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/connections.js"></script>
+    <script src="/js/script.js"></script>
+  </body>
+</html>

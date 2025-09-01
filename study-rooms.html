@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Study Hub - Study Rooms</title>
+    <script src="js/connections.js"></script>
+    <script src="js/study-rooms.js"></script>
+    <script src="js/server.js"></script>
+
+    <link rel="stylesheet" href="styles.css" />
+
+    <style>
+      /* Re-using the existing styles from User Profile.html */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 2rem;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      /* Header - Adapted for Study Rooms */
+      .page-header {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+      }
+
+      .back-button {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: background-color 0.3s;
+      }
+
+      .back-button:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .page-title {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .page-subtitle {
+        opacity: 0.9;
+        font-size: 1.2rem;
+      }
+
+      /* Navigation Tabs - Re-used from profile */
+      .profile-nav {
+        /* Renamed to general nav if used across pages */
+        display: flex;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        overflow-x: auto;
+      }
+
+      .nav-tab {
+        padding: 1rem 2rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #666;
+        transition: all 0.3s;
+        white-space: nowrap;
+      }
+
+      .nav-tab.active {
+        color: #3498db;
+        border-bottom: 3px solid #3498db;
+        background: white;
+      }
+
+      .nav-tab:hover {
+        background: #f0f0f0;
+      }
+
+      /* Content Sections - Re-used from profile */
+      .page-content {
+        /* Renamed from profile-content */
+        padding: 2rem;
+      }
+
+      .content-section {
+        display: none; /* Hidden by default, shown by JS */
+      }
+
+      .content-section.active {
+        display: block;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        color: #333;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #333;
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+        padding: 0.8rem;
+        border: 2px solid #e1e1e1;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: #3498db;
+      }
+
+      .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      .form-actions {
+        margin-top: 2rem;
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end; /* Align buttons to the right */
+      }
+
+      .btn {
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .btn-primary {
+        background: #3498db;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+      }
+
+      .btn-secondary {
+        background: #95a5a6;
+        color: white;
+      }
+
+      .btn-secondary:hover {
+        background: #7f8c8d;
+      }
+
+      /* New styles for Study Rooms specific elements */
+      .filter-options {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+      }
+
+      .filter-options input,
+      .filter-options select {
+        flex: 1;
+        min-width: 200px;
+        padding: 0.8rem;
+        border: 2px solid #e1e1e1;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+      }
+
+      .filter-options input:focus,
+      .filter-options select:focus {
+        outline: none;
+        border-color: #3498db;
+      }
+
+      .rooms-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .room-card {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        transition: transform 0.3s, box-shadow 0.3s;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .room-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      }
+
+      .room-card h3 {
+        font-size: 1.3rem;
+        color: #333;
+        margin-bottom: 0.5rem;
+      }
+
+      .room-card p {
+        font-size: 0.95rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+      }
+
+      .room-card .room-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        color: #555;
+      }
+
+      .room-card .room-meta span {
+        background: #e8f4fd;
+        color: #0066cc;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-weight: 500;
+      }
+
+      .room-card .btn {
+        width: 100%;
+        margin-top: auto; /* Pushes the button to the bottom */
+      }
+
+      .ai-assistant-promo {
+        background: linear-gradient(45deg, #3498db, #2980b9);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        text-align: center;
+        margin-top: 3rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .ai-assistant-promo h3 {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+      }
+
+      .ai-assistant-promo p {
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.9;
+      }
+
+      .ai-assistant-promo .btn-primary {
+        background: white;
+        color: #3498db;
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      .ai-assistant-promo .btn-primary:hover {
+        background: #e0e0e0;
+        transform: translateY(-3px);
+      }
+
+      /* Empty state for My Rooms */
+      .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+        border: 2px dashed #e9ecef;
+        color: #666;
+        font-size: 1.1rem;
+      }
+
+      .empty-state .icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #ccc;
+      }
+
+      /* AI Assistant specific styles */
+      .ai-features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .ai-feature-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        text-align: center;
+        border: 1px solid #e9ecef;
+      }
+
+      .ai-feature-card .icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: #3498db;
+      }
+
+      .ai-feature-card h4 {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+        color: #333;
+      }
+
+      .ai-feature-card p {
+        font-size: 0.9rem;
+        color: #666;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        body {
+          padding: 1rem;
+        }
+        .page-title {
+          font-size: 2rem;
+        }
+        .page-subtitle {
+          font-size: 1rem;
+        }
+        .profile-nav {
+          flex-wrap: nowrap;
+          justify-content: flex-start;
+        }
+        .filter-options {
+          flex-direction: column;
+        }
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+        .form-actions {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .form-actions .btn {
+          width: 100%;
+        }
+        .rooms-grid {
+          grid-template-columns: 1fr;
+        }
+        .ai-features-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div class="header-nav-buttons">
+          <!-- <button class="back-button" data-navigate="chat">
+            ← Back to Chat
+          </button> -->
+          <button class="nav-btn" data-navigate="profile" title="Profile">
+            <i class="fas fa-user"></i> Profile
+          </button>
+        </div>
+        <h1 class="page-title">📚 Study Rooms</h1>
+        <p class="page-subtitle">
+          Find your perfect study group or create your own!
+        </p>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="profile-nav">
+        <button class="nav-tab active" data-section="available-rooms">
+          🔍 Browse Rooms
+        </button>
+        <button class="nav-tab" data-section="create-room">
+          ➕ Create Room
+        </button>
+        <button class="nav-tab" data-section="my-rooms">🏠 My Rooms</button>
+        <button class="nav-tab" data-section="ai-assistant">
+          🤖 AI Assistant
+        </button>
+      </div>
+
+      <!-- Content Sections -->
+      <div class="page-content">
+        <!-- Available Rooms Section -->
+        <div id="available-rooms" class="content-section active">
+          <h2 class="section-title">🔍 Available Study Rooms</h2>
+
+          <div class="filter-options">
+            <input type="text" placeholder="Search by room name or topic..." />
+            <select>
+              <option value="">All Subjects</option>
+              <option value="math">Mathematics</option>
+              <option value="science">Science</option>
+              <option value="programming">Programming</option>
+              <option value="history">History</option>
+              <option value="literature">Literature</option>
+            </select>
+            <button class="btn btn-primary">Apply Filters</button>
+          </div>
+
+          <div class="rooms-grid">
+            <div class="room-card">
+              <h3>📐 Advanced Calculus Study</h3>
+              <p>
+                Description: Deep dive into differential equations and
+                multivariable calculus.
+              </p>
+              <div class="room-meta">
+                <span>Mathematics</span>
+                <span>5/8 Participants</span>
+              </div>
+              <button class="btn btn-primary">Join Room</button>
+            </div>
+
+            <div class="room-card">
+              <h3>🔬 Organic Chemistry Basics</h3>
+              <p>
+                Description: Understanding fundamental concepts of organic
+                chemistry.
+              </p>
+              <div class="room-meta">
+                <span>Science</span>
+                <span>3/6 Participants</span>
+              </div>
+              <button class="btn btn-primary">Join Room</button>
+            </div>
+
+            <div class="room-card">
+              <h3>💻 Python for Beginners</h3>
+              <p>
+                Description: Learn Python from scratch with practical exercises.
+              </p>
+              <div class="room-meta">
+                <span>Programming</span>
+                <span>7/10 Participants</span>
+              </div>
+              <button class="btn btn-primary">Join Room</button>
+            </div>
+
+            <div class="room-card">
+              <h3>📜 World History: 20th Century</h3>
+              <p>
+                Description: Discussions on major events and figures of the 20th
+                century.
+              </p>
+              <div class="room-meta">
+                <span>History</span>
+                <span>4/7 Participants</span>
+              </div>
+              <button class="btn btn-primary">Join Room</button>
+            </div>
+
+            <div class="room-card">
+              <h3>📚 English Literature Analysis</h3>
+              <p>
+                Description: Analyzing classic and contemporary literary works.
+              </p>
+              <div class="room-meta">
+                <span>Literature</span>
+                <span>2/5 Participants</span>
+              </div>
+              <button class="btn btn-primary">Join Room</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Create Room Section -->
+        <div id="create-room" class="content-section">
+          <h2 class="section-title">➕ Create a New Study Room</h2>
+
+          <form>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="newRoomName">Room Name</label>
+                <input
+                  type="text"
+                  id="newRoomName"
+                  placeholder="e.g., Biology Exam Prep"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="newRoomSubject">Subject</label>
+                <select id="newRoomSubject" required>
+                  <option value="">Select Subject</option>
+                  <option value="math">Mathematics</option>
+                  <option value="science">Science</option>
+                  <option value="programming">Programming</option>
+                  <option value="history">History</option>
+                  <option value="literature">Literature</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="maxParticipants">Max Participants</label>
+                <input
+                  type="number"
+                  id="maxParticipants"
+                  value="10"
+                  min="2"
+                  max="20"
+                />
+              </div>
+              <div class="form-group">
+                <label for="roomVisibility">Visibility</label>
+                <select id="roomVisibility">
+                  <option value="public">Public (Anyone can join)</option>
+                  <option value="private">Private (Invite only)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="newRoomDescription">Description</label>
+              <textarea
+                id="newRoomDescription"
+                placeholder="Briefly describe the room's purpose or topics to be covered..."
+              ></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Create Room</button>
+              <button type="button" class="btn btn-secondary">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- My Rooms Section -->
+        <div id="my-rooms" class="content-section">
+          <h2 class="section-title">🏠 Your Study Rooms</h2>
+
+          <!-- Example of a joined room -->
+          <div class="study-history">
+            <h3 style="margin-bottom: 1rem; color: #333">Joined Rooms</h3>
+            <div class="history-item">
+              <div class="history-info">
+                <div class="history-room">📐 Advanced Calculus Study</div>
+                <div class="history-date">Joined: Jan 20, 2024</div>
+              </div>
+              <div class="history-duration">Active</div>
+              <button class="btn btn-secondary" style="margin-left: 1rem">
+                Leave
+              </button>
+            </div>
+            <div class="history-item">
+              <div class="history-info">
+                <div class="history-room">💻 Python for Beginners</div>
+                <div class="history-date">Joined: Feb 1, 2024</div>
+              </div>
+              <div class="history-duration">Active</div>
+              <button class="btn btn-secondary" style="margin-left: 1rem">
+                Leave
+              </button>
+            </div>
+          </div>
+
+          <!-- Example of a created room -->
+          <div class="study-history" style="margin-top: 2rem">
+            <h3 style="margin-bottom: 1rem; color: #333">Rooms You Created</h3>
+            <div class="history-item">
+              <div class="history-info">
+                <div class="history-room">🧪 Chemistry Exam Prep (My Room)</div>
+                <div class="history-date">Created: Mar 5, 2024</div>
+              </div>
+              <div class="history-duration">Public</div>
+              <button class="btn btn-primary" style="margin-left: 1rem">
+                Manage
+              </button>
+            </div>
+            <!-- Empty state if no rooms created -->
+            <!--
+                    <div class="empty-state">
+                        <div class="icon">➕</div>
+                        <p>You haven't created any study rooms yet.</p>
+                        <button class="btn btn-primary" onclick="document.querySelector('.nav-tab[data-section=\'create-room\']').click()">Create Your First Room</button>
+                    </div>
+                    -->
+          </div>
+
+          <!-- Empty state if no rooms joined -->
+          <div class="empty-state" style="margin-top: 2rem">
+            <div class="icon">🏠</div>
+            <p>You haven't joined any study rooms yet.</p>
+            <button
+              class="btn btn-primary"
+              onclick="document.querySelector('.nav-tab[data-section=\'available-rooms\']').click()"
+            >
+              Browse Available Rooms
+            </button>
+          </div>
+        </div>
+
+        <!-- AI Assistant Section -->
+        <div id="ai-assistant" class="content-section">
+          <h2 class="section-title">🤖 AI Study Assistant</h2>
+
+          <div class="ai-assistant-promo">
+            <h3>Unlock Smarter Studying with AI!</h3>
+            <p>
+              Our AI Study Assistant is here to help you with instant answers,
+              explanations, and personalized study plans.
+            </p>
+            <button
+              class="btn btn-primary"
+              onclick="alert('Launching AI Study Assistant!')"
+            >
+              Launch AI Assistant
+            </button>
+          </div>
+
+          <div class="settings-section" style="margin-top: 3rem">
+            <h3 class="settings-title">✨ AI Features</h3>
+            <div class="ai-features-grid">
+              <div class="ai-feature-card">
+                <div class="icon">💡</div>
+                <h4>Instant Explanations</h4>
+                <p>Get clear, concise explanations for complex topics.</p>
+              </div>
+              <div class="ai-feature-card">
+                <div class="icon">❓</div>
+                <h4>Question Answering</h4>
+                <p>Ask any question and receive accurate, detailed answers.</p>
+              </div>
+              <div class="ai-feature-card">
+                <div class="icon">📝</div>
+                <h4>Summarization</h4>
+                <p>Quickly summarize long texts or study notes.</p>
+              </div>
+              <div class="ai-feature-card">
+                <div class="icon">🧠</div>
+                <h4>Concept Generation</h4>
+                <p>
+                  Brainstorm ideas or generate related concepts for your
+                  studies.
+                </p>
+              </div>
+              <div class="ai-feature-card">
+                <div class="icon">📊</div>
+                <h4>Progress Tracking</h4>
+                <p>
+                  AI helps analyze your study patterns and suggest improvements.
+                </p>
+              </div>
+              <div class="ai-feature-card">
+                <div class="icon">🗣️</div>
+                <h4>Interactive Tutoring</h4>
+                <p>Engage in conversational learning sessions with the AI.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section" style="margin-top: 3rem">
+            <h3 class="settings-title">⚙️ AI Settings</h3>
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-name">AI Response Verbosity</div>
+                <div class="setting-description">
+                  Choose between concise or detailed AI responses.
+                </div>
+              </div>
+              <select class="form-group" style="width: auto; margin-bottom: 0">
+                <option>Concise</option>
+                <option selected>Standard</option>
+                <option>Detailed</option>
+              </select>
+            </div>
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-name">Preferred Learning Style</div>
+                <div class="setting-description">
+                  AI adapts to your preferred way of learning (e.g., visual,
+                  auditory).
+                </div>
+              </div>
+              <select class="form-group" style="width: auto; margin-bottom: 0">
+                <option>Default</option>
+                <option>Visual</option>
+                <option>Auditory</option>
+                <option>Kinesthetic</option>
+              </select>
+            </div>
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-name">Enable AI Voice Output</div>
+                <div class="setting-description">
+                  Have the AI read out its responses.
+                </div>
+              </div>
+              <div
+                class="toggle-switch active"
+                onclick="toggleSwitch(this)"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Toggle Navigation Tabs and Content Sections
+      const navTabs = document.querySelectorAll(".nav-tab");
+      const contentSections = document.querySelectorAll(".content-section");
+
+      navTabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          // Remove 'active' class from all tabs and content sections
+          navTabs.forEach((t) => t.classList.remove("active"));
+          contentSections.forEach((section) =>
+            section.classList.remove("active")
+          ); // Remove 'active' to hide
+
+          // Add 'active' class to the clicked tab
+          tab.classList.add("active");
+
+          // Show the corresponding content section
+          const sectionId = tab.getAttribute("data-section");
+          document.getElementById(sectionId).classList.add("active"); // Add 'active' to show
+        });
+      });
+
+      // Initialize the first tab as active and show its content on load
+      document.addEventListener("DOMContentLoaded", () => {
+        const initialTab = document.querySelector(".nav-tab.active");
+        if (initialTab) {
+          const sectionId = initialTab.getAttribute("data-section");
+          document.getElementById(sectionId).classList.add("active");
+        }
+      });
+
+      // Toggle Switch Functionality (re-used from User Profile)
+      function toggleSwitch(element) {
+        element.classList.toggle("active");
+      }
+    </script>
+  </body>
+</html>

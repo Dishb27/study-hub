@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Study Hub - Admin Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="js/connections.js"></script>
+    <script src="js/study-rooms.js"></script>
+    <script src="js/server.js"></script>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f5f7fa;
+        color: #333;
+      }
+
+      .dashboard-container {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      /* Sidebar */
+      .admin-sidebar {
+        width: 280px;
+        background: #2c3e50;
+        color: white;
+        padding: 0;
+      }
+
+      .sidebar-header {
+        padding: 1.5rem;
+        background: #34495e;
+        border-bottom: 1px solid #4a5f7a;
+      }
+
+      .sidebar-header h2 {
+        margin-bottom: 0.5rem;
+        font-size: 1.4rem;
+      }
+
+      .admin-info {
+        font-size: 0.9rem;
+        opacity: 0.8;
+      }
+
+      .nav-menu {
+        padding: 1rem 0;
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        color: white;
+        text-decoration: none;
+        transition: background-color 0.3s;
+        cursor: pointer;
+      }
+
+      .nav-item:hover {
+        background: #34495e;
+      }
+
+      .nav-item.active {
+        background: #3498db;
+      }
+
+      .nav-item i {
+        margin-right: 0.8rem;
+        font-size: 1.1rem;
+      }
+
+      /* Main Content */
+      .main-content {
+        flex: 1;
+        padding: 2rem;
+        overflow-y: auto;
+      }
+
+      .dashboard-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 2rem;
+      }
+
+      .dashboard-title h1 {
+        color: #2c3e50;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .dashboard-title p {
+        color: #7f8c8d;
+      }
+
+      /* Stats Cards */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-2px);
+      }
+
+      .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+      }
+
+      .stat-icon.users {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+      }
+      .stat-icon.rooms {
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+      }
+      .stat-icon.messages {
+        background: linear-gradient(135deg, #4facfe, #00f2fe);
+      }
+      .stat-icon.active {
+        background: linear-gradient(135deg, #43e97b, #38f9d7);
+      }
+
+      .stat-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-label {
+        color: #7f8c8d;
+        font-size: 0.95rem;
+      }
+
+      .stat-change {
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+
+      .stat-change.positive {
+        color: #27ae60;
+      }
+      .stat-change.negative {
+        color: #e74c3c;
+      }
+
+      /* Content Sections */
+      .content-section {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+        overflow: hidden;
+      }
+
+      .section-header {
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .section-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      .section-actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s;
+      }
+
+      .btn-primary {
+        background: #3498db;
+        color: white;
+      }
+
+      .btn-success {
+        background: #27ae60;
+        color: white;
+      }
+
+      .btn-danger {
+        background: #e74c3c;
+        color: white;
+      }
+
+      .btn-secondary {
+        background: #95a5a6;
+        color: white;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Tables */
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .data-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      .data-table tr:hover {
+        background: #f8f9fa;
+      }
+
+      .status-badge {
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .status-online {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .status-offline {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .status-active {
+        background: #cce5ff;
+        color: #004085;
+      }
+
+      /* Activity Feed */
+      .activity-feed {
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .activity-item {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        color: white;
+      }
+
+      .activity-content {
+        flex: 1;
+      }
+
+      .activity-text {
+        color: #333;
+        margin-bottom: 0.2rem;
+      }
+
+      .activity-time {
+        color: #7f8c8d;
+        font-size: 0.85rem;
+      }
+
+      /* Charts Container */
+      .charts-container {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+      }
+
+      .chart-placeholder {
+        background: #f8f9fa;
+        border: 2px dashed #dee2e6;
+        border-radius: 8px;
+        padding: 3rem;
+        text-align: center;
+        color: #6c757d;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .dashboard-container {
+          flex-direction: column;
+        }
+
+        .admin-sidebar {
+          width: 100%;
+        }
+
+        .main-content {
+          padding: 1rem;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .charts-container {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      class="admin-nav-header"
+      style="
+        background: #2c3e50;
+        color: white;
+        padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      "
+    >
+      <h3>Study Hub Admin Panel</h3>
+      <div style="display: flex; gap: 1rem">
+        <button
+          class="nav-btn"
+          data-navigate="chat"
+          style="
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+          "
+        >
+          <i class="fas fa-comments"></i> Chat
+        </button>
+        <button
+          class="nav-btn"
+          data-navigate="rooms"
+          style="
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+          "
+        >
+          <i class="fas fa-home"></i> Rooms
+        </button>
+        <button
+          class="logout-btn"
+          onclick="logout()"
+          style="
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+          "
+        >
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </div>
+    <div class="dashboard-container">
+      <!-- Admin Sidebar -->
+      <div class="admin-sidebar">
+        <div class="sidebar-header">
+          <h2>Admin Panel</h2>
+          <div class="admin-info">
+            <div>Admin: <strong>Dishmi Bawanga</strong></div>
+            <div>Role: Super Admin</div>
+          </div>
+          <div class="admin-nav-buttons" style="margin-top: 1rem">
+            <button
+              class="btn btn-secondary"
+              data-navigate="chat"
+              style="width: 100%"
+            >
+              ← Back to Chat
+            </button>
+          </div>
+        </div>
+
+        <nav class="nav-menu">
+          <a href="#" class="nav-item active" data-section="dashboard">
+            <span>📈</span> Dashboard
+          </a>
+          <a href="#" class="nav-item" data-section="users">
+            <span>👥</span> User Management
+          </a>
+          <a href="#" class="nav-item" data-section="rooms">
+            <span>🏠</span> Study Rooms
+          </a>
+          <a href="#" class="nav-item" data-section="analytics">
+            <span>📊</span> Analytics
+          </a>
+          <a href="#" class="nav-item" data-section="ai-settings">
+            <span>🤖</span> AI Settings
+          </a>
+          <a href="#" class="nav-item" data-section="reports">
+            <span>📋</span> Reports
+          </a>
+          <a href="#" class="nav-item" data-section="settings">
+            <span>⚙️</span> System Settings
+          </a>
+        </nav>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="content-section-wrapper">
+          <div class="dashboard-header">
+            <div class="dashboard-title">
+              <h1>Dashboard Overview</h1>
+              <p>Monitor your Study Hub platform performance</p>
+            </div>
+          </div>
+
+          <!-- Stats Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon users">👥</div>
+              </div>
+              <div class="stat-value">1,247</div>
+              <div class="stat-label">Total Users</div>
+              <div class="stat-change positive">+12% this week</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon active">🟢</div>
+              </div>
+              <div class="stat-value">143</div>
+              <div class="stat-label">Active Now</div>
+              <div class="stat-change positive">+8% from yesterday</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon rooms">🏠</div>
+              </div>
+              <div class="stat-value">24</div>
+              <div class="stat-label">Study Rooms</div>
+              <div class="stat-change positive">+2 new rooms</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon messages">💬</div>
+              </div>
+              <div class="stat-value">28.5K</div>
+              <div class="stat-label">Messages Today</div>
+              <div class="stat-change positive">+15% increase</div>
+            </div>
+          </div>
+
+          <!-- Charts and Activity -->
+          <div class="charts-container">
+            <div class="content-section">
+              <div class="section-header">
+                <div class="section-title">📈 Usage Analytics</div>
+                <div class="section-actions">
+                  <button class="btn btn-secondary">Last 7 Days</button>
+                  <button class="btn btn-primary">Export Data</button>
+                </div>
+              </div>
+              <div class="chart-placeholder">
+                <h3>User Activity Chart</h3>
+                <p>
+                  Interactive chart showing daily active users, messages sent,
+                  and study sessions
+                </p>
+              </div>
+            </div>
+
+            <div class="content-section">
+              <div class="section-header">
+                <div class="section-title">🔔 Recent Activity</div>
+              </div>
+              <div class="activity-feed">
+                <div class="activity-item">
+                  <div class="activity-icon" style="background: #3498db">
+                    👤
+                  </div>
+                  <div class="activity-content">
+                    <div class="activity-text">
+                      New user registered: Sandumi Perera
+                    </div>
+                    <div class="activity-time">2 minutes ago</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon" style="background: #27ae60">
+                    🏠
+                  </div>
+                  <div class="activity-content">
+                    <div class="activity-text">
+                      Chemistry room reached 50 active users
+                    </div>
+                    <div class="activity-time">5 minutes ago</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon" style="background: #e74c3c">
+                    🤖
+                  </div>
+                  <div class="activity-content">
+                    <div class="activity-text">
+                      AI Assistant answered 500+ questions today
+                    </div>
+                    <div class="activity-time">1 hour ago</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon" style="background: #f39c12">
+                    📊
+                  </div>
+                  <div class="activity-content">
+                    <div class="activity-text">
+                      Weekly report generated successfully
+                    </div>
+                    <div class="activity-time">3 hours ago</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Management Section -->
+        <div id="users" class="content-section-wrapper hidden">
+          <div class="dashboard-header">
+            <div class="dashboard-title">
+              <h1>User Management</h1>
+              <p>Manage all registered users and their permissions</p>
+            </div>
+          </div>
+
+          <div class="content-section">
+            <div class="section-header">
+              <div class="section-title">👥 All Users</div>
+              <div class="section-actions">
+                <button class="btn btn-success">Add User</button>
+                <button class="btn btn-primary">Export List</button>
+              </div>
+            </div>
+            <div style="overflow-x: auto">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Join Date</th>
+                    <th>Status</th>
+                    <th>Study Sessions</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div
+                        style="display: flex; align-items: center; gap: 0.8rem"
+                      >
+                        <div
+                          style="
+                            width: 32px;
+                            height: 32px;
+                            background: #3498db;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            font-size: 0.9rem;
+                          "
+                        >
+                          KG
+                        </div>
+                        <div>Kasun Gamage</div>
+                      </div>
+                    </td>
+                    <td>kasun_gamage@gmail.com</td>
+                    <td>Jan 15, 2025</td>
+                    <td>
+                      <span class="status-badge status-online">Online</span>
+                    </td>
+                    <td>47</td>
+                    <td>
+                      <button
+                        class="btn btn-primary"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        class="btn btn-danger"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        Block
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div
+                        style="display: flex; align-items: center; gap: 0.8rem"
+                      >
+                        <div
+                          style="
+                            width: 32px;
+                            height: 32px;
+                            background: #27ae60;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            font-size: 0.9rem;
+                          "
+                        >
+                          MP
+                        </div>
+                        <div>Manuli Perera</div>
+                      </div>
+                    </td>
+                    <td>manuli_perera@gmail.com</td>
+                    <td>Jan 10, 2025</td>
+                    <td>
+                      <span class="status-badge status-offline">Offline</span>
+                    </td>
+                    <td>23</td>
+                    <td>
+                      <button
+                        class="btn btn-primary"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        class="btn btn-danger"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        Block
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div
+                        style="display: flex; align-items: center; gap: 0.8rem"
+                      >
+                        <div
+                          style="
+                            width: 32px;
+                            height: 32px;
+                            background: #e74c3c;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            font-size: 0.9rem;
+                          "
+                        >
+                          ES
+                        </div>
+                        <div>Emasha Savindi</div>
+                      </div>
+                    </td>
+                    <td>emasha_savindi@gmail.com</td>
+                    <td>Jan 8, 2025</td>
+                    <td>
+                      <span class="status-badge status-online">Online</span>
+                    </td>
+                    <td>91</td>
+                    <td>
+                      <button
+                        class="btn btn-primary"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        class="btn btn-danger"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        Block
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div
+                        style="display: flex; align-items: center; gap: 0.8rem"
+                      >
+                        <div
+                          style="
+                            width: 32px;
+                            height: 32px;
+                            background: #3498db;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            font-size: 0.9rem;
+                          "
+                        >
+                          AS
+                        </div>
+
+                        <div>Amila Sandaruwan</div>
+                      </div>
+                    </td>
+                    <td>amila_sandaruwan@gmail.com</td>
+                    <td>Feb 12, 2025</td>
+                    <td>
+                      <span class="status-badge status-online">Online</span>
+                    </td>
+                    <td>47</td>
+                    <td>
+                      <button
+                        class="btn btn-primary"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        class="btn btn-danger"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        Block
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div
+                        style="display: flex; align-items: center; gap: 0.8rem"
+                      >
+                        <div
+                          style="
+                            width: 32px;
+                            height: 32px;
+                            background: #27ae60;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            font-size: 0.9rem;
+                          "
+                        >
+                          PM
+                        </div>
+                        <div>Parami Mudalige</div>
+                      </div>
+                    </td>
+                    <td>parami_mudalige@gmail.com</td>
+                    <td>Feb 16, 2025</td>
+                    <td>
+                      <span class="status-badge status-offline">Offline</span>
+                    </td>
+                    <td>42</td>
+                    <td>
+                      <button
+                        class="btn btn-primary"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        class="btn btn-danger"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        Block
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div
+                        style="display: flex; align-items: center; gap: 0.8rem"
+                      >
+                        <div
+                          style="
+                            width: 32px;
+                            height: 32px;
+                            background: #e74c3c;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            font-size: 0.9rem;
+                          "
+                        >
+                          SW
+                        </div>
+                        <div>Savindu Weerasooriya</div>
+                      </div>
+                    </td>
+                    <td>savindu_weerasooriya@gmail.com</td>
+                    <td>Mar 9, 2025</td>
+                    <td>
+                      <span class="status-badge status-online">Online</span>
+                    </td>
+                    <td>56</td>
+                    <td>
+                      <button
+                        class="btn btn-primary"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        class="btn btn-danger"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        Block
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div
+                        style="display: flex; align-items: center; gap: 0.8rem"
+                      >
+                        <div
+                          style="
+                            width: 32px;
+                            height: 32px;
+                            background: #e74c3c;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            font-size: 0.9rem;
+                          "
+                        >
+                          SP
+                        </div>
+                        <div>Sandumi Perera</div>
+                      </div>
+                    </td>
+                    <td>sandumi_perera@gmail.com</td>
+                    <td>Aug 15, 2025</td>
+                    <td>
+                      <span class="status-badge status-online">Online</span>
+                    </td>
+                    <td>21</td>
+                    <td>
+                      <button
+                        class="btn btn-primary"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        class="btn btn-danger"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        Block
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Study Rooms Section -->
+        <div id="rooms" class="content-section-wrapper hidden">
+          <div class="dashboard-header">
+            <div class="dashboard-title">
+              <h1>Study Rooms Management</h1>
+              <p>Monitor and manage all study rooms</p>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon rooms">📐</div>
+              </div>
+              <div class="stat-value">8</div>
+              <div class="stat-label">Mathematics Rooms</div>
+              <div class="stat-change positive">Most active</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <div
+                  class="stat-icon"
+                  style="background: linear-gradient(135deg, #667eea, #764ba2)"
+                >
+                  🔬
+                </div>
+              </div>
+              <div class="stat-value">6</div>
+              <div class="stat-label">Science Rooms</div>
+              <div class="stat-change positive">Growing fast</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <div
+                  class="stat-icon"
+                  style="background: linear-gradient(135deg, #f093fb, #f5576c)"
+                >
+                  💻
+                </div>
+              </div>
+              <div class="stat-value">10</div>
+              <div class="stat-label">Programming Rooms</div>
+              <div class="stat-change positive">High engagement</div>
+            </div>
+          </div>
+
+          <div class="content-section">
+            <div class="section-header">
+              <div class="section-title">🏠 All Study Rooms</div>
+              <div class="section-actions">
+                <button class="btn btn-success">Create Room</button>
+                <button class="btn btn-primary">Room Analytics</button>
+              </div>
+            </div>
+            <div style="overflow-x: auto">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Room Name</th>
+                    <th>Category</th>
+                    <th>Active Users</th>
+                    <th>Total Messages</th>
+                    <th>Created</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>📐 Advanced Calculus</td>
+                    <td>Mathematics</td>
+                    <td>23</td>
+                    <td>1,547</td>
+                    <td>Dec 1, 2024</td>
+                    <td>
+                      <span class="status-badge status-active">Active</span>
+                    </td>
+                    <td>
+                      <button
+                        class="btn btn-primary"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        class="btn btn-secondary"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>🔬 Organic Chemistry</td>
+                    <td>Science</td>
+                    <td>18</td>
+                    <td>892</td>
+                    <td>Dec 5, 2024</td>
+                    <td>
+                      <span class="status-badge status-active">Active</span>
+                    </td>
+                    <td>
+                      <button
+                        class="btn btn-primary"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        class="btn btn-secondary"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div id="analytics" class="content-section-wrapper hidden">
+          <div class="dashboard-header">
+            <div class="dashboard-title">
+              <h1>Analytics Overview</h1>
+              <p>Detailed insights into platform usage and performance</p>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <div
+                  class="stat-icon"
+                  style="background: linear-gradient(135deg, #4facfe, #00f2fe)"
+                >
+                  📈
+                </div>
+              </div>
+              <div class="stat-value">92%</div>
+              <div class="stat-label">User Retention</div>
+              <div class="stat-change positive">+1.5% last month</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <div
+                  class="stat-icon"
+                  style="background: linear-gradient(135deg, #f093fb, #f5576c)"
+                >
+                  ⏱️
+                </div>
+              </div>
+              <div class="stat-value">45 min</div>
+              <div class="stat-label">Avg. Session Duration</div>
+              <div class="stat-change positive">+5 min this week</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <div
+                  class="stat-icon"
+                  style="background: linear-gradient(135deg, #667eea, #764ba2)"
+                >
+                  🔗
+                </div>
+              </div>
+              <div class="stat-value">120</div>
+              <div class="stat-label">New Registrations</div>
+              <div class="stat-change positive">+12% this month</div>
+            </div>
+          </div>
+
+          <div class="content-section">
+            <div class="section-header">
+              <div class="section-title">📊 User Engagement Trends</div>
+              <div class="section-actions">
+                <button class="btn btn-secondary">Daily</button>
+                <button class="btn btn-secondary">Weekly</button>
+                <button class="btn btn-primary">Monthly</button>
+              </div>
+            </div>
+            <div class="chart-placeholder">
+              <h3>Engagement Chart</h3>
+              <p>
+                Visual representation of user activity over time (e.g., logins,
+                messages, room joins)
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Settings Section -->
+        <div id="ai-settings" class="content-section-wrapper hidden">
+          <div class="dashboard-header">
+            <div class="dashboard-title">
+              <h1>AI Assistant Settings</h1>
+              <p>Configure and monitor AI behavior and performance</p>
+            </div>
+          </div>
+
+          <div class="content-section">
+            <div class="section-header">
+              <div class="section-title">🤖 AI Configuration</div>
+              <div class="section-actions">
+                <button class="btn btn-success">Save Changes</button>
+                <button class="btn btn-secondary">Reset to Default</button>
+              </div>
+            </div>
+            <div style="padding: 1.5rem">
+              <div style="display: grid; gap: 1.5rem">
+                <div>
+                  <label
+                    style="
+                      display: block;
+                      margin-bottom: 0.5rem;
+                      font-weight: 500;
+                    "
+                    >AI Response Style</label
+                  >
+                  <select
+                    style="
+                      width: 100%;
+                      padding: 0.8rem;
+                      border: 1px solid #ddd;
+                      border-radius: 6px;
+                    "
+                  >
+                    <option>Friendly and Encouraging</option>
+                    <option>Professional and Direct</option>
+                    <option>Detailed and Academic</option>
+                  </select>
+                </div>
+                <div>
+                  <label
+                    style="
+                      display: block;
+                      margin-bottom: 0.5rem;
+                      font-weight: 500;
+                    "
+                    >Maximum Response Length</label
+                  >
+                  <input
+                    type="range"
+                    min="50"
+                    max="500"
+                    value="200"
+                    style="width: 100%"
+                  />
+                  <div
+                    style="color: #666; font-size: 0.9rem; margin-top: 0.3rem"
+                  >
+                    200 words maximum
+                  </div>
+                </div>
+                <div>
+                  <label
+                    style="
+                      display: block;
+                      margin-bottom: 0.5rem;
+                      font-weight: 500;
+                    "
+                    >Subject Expertise Level</label
+                  >
+                  <div
+                    style="
+                      display: grid;
+                      grid-template-columns: repeat(
+                        auto-fit,
+                        minmax(200px, 1fr)
+                      );
+                      gap: 1rem;
+                      margin-top: 1rem;
+                    "
+                  >
+                    <div>
+                      <label>Mathematics</label>
+                      <select
+                        style="
+                          width: 100%;
+                          padding: 0.5rem;
+                          border: 1px solid #ddd;
+                          border-radius: 4px;
+                        "
+                      >
+                        <option>High School</option>
+                        <option>University</option>
+                        <option>Advanced</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label>Science</label>
+                      <select
+                        style="
+                          width: 100%;
+                          padding: 0.5rem;
+                          border: 1px solid #ddd;
+                          border-radius: 4px;
+                        "
+                      >
+                        <option>High School</option>
+                        <option>University</option>
+                        <option>Advanced</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="content-section">
+            <div class="section-header">
+              <div class="section-title">📊 AI Performance Metrics</div>
+            </div>
+            <div style="padding: 1.5rem">
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <div class="stat-value">95.2%</div>
+                  <div class="stat-label">Response Accuracy</div>
+                  <div class="stat-change positive">+2.1% this week</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value">1.2s</div>
+                  <div class="stat-label">Average Response Time</div>
+                  <div class="stat-change positive">-0.3s improvement</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value">4.8/5</div>
+                  <div class="stat-label">User Satisfaction</div>
+                  <div class="stat-change positive">+0.2 this month</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reports Section -->
+        <div id="reports" class="content-section-wrapper hidden">
+          <div class="dashboard-header">
+            <div class="dashboard-title">
+              <h1>Reports Generation</h1>
+              <p>Generate and download various reports for analysis</p>
+            </div>
+          </div>
+
+          <div class="content-section">
+            <div class="section-header">
+              <div class="section-title">📋 Available Reports</div>
+              <div class="section-actions">
+                <button class="btn btn-success">Generate New Report</button>
+              </div>
+            </div>
+            <div style="overflow-x: auto">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Report Name</th>
+                    <th>Type</th>
+                    <th>Last Generated</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>User Activity Summary</td>
+                    <td>Daily</td>
+                    <td>Aug 20, 2025</td>
+                    <td>
+                      <span class="status-badge status-active">Completed</span>
+                    </td>
+                    <td>
+                      <button
+                        class="btn btn-primary"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        Download
+                      </button>
+                      <button
+                        class="btn btn-secondary"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Study Room Performance</td>
+                    <td>Weekly</td>
+                    <td>Aug 18, 2025</td>
+                    <td>
+                      <span class="status-badge status-active">Completed</span>
+                    </td>
+                    <td>
+                      <button
+                        class="btn btn-primary"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        Download
+                      </button>
+                      <button
+                        class="btn btn-secondary"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>AI Interaction Log</td>
+                    <td>Monthly</td>
+                    <td>Aug 1, 2025</td>
+                    <td>
+                      <span class="status-badge status-active">Completed</span>
+                    </td>
+                    <td>
+                      <button
+                        class="btn btn-primary"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        Download
+                      </button>
+                      <button
+                        class="btn btn-secondary"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem"
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- System Settings Section -->
+        <div id="settings" class="content-section-wrapper hidden">
+          <div class="dashboard-header">
+            <div class="dashboard-title">
+              <h1>System Settings</h1>
+              <p>Configure core platform settings and integrations</p>
+            </div>
+          </div>
+
+          <div class="content-section">
+            <div class="section-header">
+              <div class="section-title">⚙️ General Settings</div>
+              <div class="section-actions">
+                <button class="btn btn-success">Save Settings</button>
+              </div>
+            </div>
+            <div style="padding: 1.5rem">
+              <div style="display: grid; gap: 1.5rem">
+                <div>
+                  <label
+                    style="
+                      display: block;
+                      margin-bottom: 0.5rem;
+                      font-weight: 500;
+                    "
+                    >Platform Name</label
+                  >
+                  <input
+                    type="text"
+                    value="Study Hub"
+                    style="
+                      width: 100%;
+                      padding: 0.8rem;
+                      border: 1px solid #ddd;
+                      border-radius: 6px;
+                    "
+                  />
+                </div>
+                <div>
+                  <label
+                    style="
+                      display: block;
+                      margin-bottom: 0.5rem;
+                      font-weight: 500;
+                    "
+                    >Default Language</label
+                  >
+                  <select
+                    style="
+                      width: 100%;
+                      padding: 0.8rem;
+                      border: 1px solid #ddd;
+                      border-radius: 6px;
+                    "
+                  >
+                    <option>English</option>
+                    <option>Spanish</option>
+                    <option>French</option>
+                  </select>
+                </div>
+                <div>
+                  <label
+                    style="
+                      display: block;
+                      margin-bottom: 0.5rem;
+                      font-weight: 500;
+                    "
+                    >Maintenance Mode</label
+                  >
+                  <input type="checkbox" style="margin-left: 0.5rem" /> Enable
+                  <div
+                    style="color: #666; font-size: 0.9rem; margin-top: 0.3rem"
+                  >
+                    Temporarily disable user access for updates.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Navigation functionality
+      document.addEventListener("DOMContentLoaded", function () {
+        const navItems = document.querySelectorAll(".nav-item");
+        const sections = document.querySelectorAll(".content-section-wrapper");
+
+        navItems.forEach((item) => {
+          item.addEventListener("click", (e) => {
+            e.preventDefault();
+
+            // Remove active class from all nav items
+            navItems.forEach((nav) => nav.classList.remove("active"));
+
+            // Add active class to clicked item
+            item.classList.add("active");
+
+            // Hide all sections
+            sections.forEach((section) => section.classList.add("hidden"));
+
+            // Show selected section
+            const targetSection = item.dataset.section;
+            const target = document.getElementById(targetSection);
+            if (target) {
+              target.classList.remove("hidden");
+            }
+          });
+        });
+      });
+
+      // Simulated real-time updates
+      function updateDashboard() {
+        // Update active users count
+        const activeUsersElement = document.querySelector(
+          ".stat-card .stat-value"
+        );
+        if (activeUsersElement && activeUsersElement.textContent === "143") {
+          const currentCount = parseInt(activeUsersElement.textContent);
+          const newCount = currentCount + Math.floor(Math.random() * 10) - 5;
+          activeUsersElement.textContent = Math.max(0, newCount);
+        }
+      }
+
+      // Update dashboard every 30 seconds
+      setInterval(updateDashboard, 30000);
+    </script>
+  </body>
+</html>
