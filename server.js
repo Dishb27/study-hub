@@ -296,6 +296,7 @@ io.on("connection", (socket) => {
   });
 
   // Handle messages
+  // Handle messages
   socket.on("message", async (data) => {
     const user = users.get(socket.id);
     if (!user) return;
@@ -310,6 +311,22 @@ io.on("connection", (socket) => {
     if (aiMatch) {
       const question = aiMatch[1];
       if (question.trim()) {
+        // First, display the user's question in the chat
+        const userMessage = {
+          id: Date.now(),
+          username,
+          text: `🤖 Asked AI: ${question}`,
+          timestamp: new Date().toISOString(),
+          isAI: false,
+        };
+
+        // Add user's question to room messages
+        if (!messages.has(room)) messages.set(room, []);
+        messages.get(room).push(userMessage);
+
+        // Broadcast user's question to room
+        io.to(room).emit("message", userMessage);
+
         // Show typing indicator
         socket
           .to(room)
@@ -319,15 +336,14 @@ io.on("connection", (socket) => {
           const aiResponse = await getAIResponse(question, room, socket.id);
 
           const aiMessage = {
-            id: Date.now(),
+            id: Date.now() + 1, // Ensure unique ID
             username: "AI Assistant",
             text: aiResponse,
             timestamp: new Date().toISOString(),
             isAI: true,
           };
 
-          // Add to room messages
-          if (!messages.has(room)) messages.set(room, []);
+          // Add AI response to room messages
           messages.get(room).push(aiMessage);
 
           // Send AI response to room
@@ -335,10 +351,22 @@ io.on("connection", (socket) => {
 
           // Update message count
           if (rooms.has(room)) {
-            rooms.get(room).messageCount++;
+            rooms.get(room).messageCount += 2; // Count both user and AI messages
           }
         } catch (error) {
-          socket.emit("error", "AI Assistant is temporarily unavailable");
+          // Send error message if AI fails
+          const errorMessage = {
+            id: Date.now() + 1,
+            username: "AI Assistant",
+            text: "❌ Sorry, I'm having trouble connecting to the AI service. Please try again later.",
+            timestamp: new Date().toISOString(),
+            isAI: true,
+          };
+
+          messages.get(room).push(errorMessage);
+          io.to(room).emit("message", errorMessage);
+
+          rooms.get(room).messageCount += 2;
         } finally {
           // Hide typing indicator
           socket
@@ -349,7 +377,7 @@ io.on("connection", (socket) => {
       }
     }
 
-    // Regular message
+    // Regular message processing
     const message = {
       id: Date.now(),
       username,
